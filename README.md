@@ -1,2 +1,2 @@
 # Bio_Project
-This i sthe repo of our project
+This is the repo of our project
