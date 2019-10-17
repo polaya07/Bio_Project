@@ -1,6 +1,7 @@
 import tensorflow as tf
 import numpy as np
 import sys
+import random
 
 class deepcrispr(object):
    
@@ -35,14 +36,14 @@ class deepcrispr(object):
                  lambda:tf.add(bn_fw3,tf.random.normal(tf.shape(bn_fw3),0,0.1)),
                  lambda:bn_fw3)
         
-        conv4 = tf.layers.conv1d(noise3,256,3,2,'same',
+        conv4 = tf.layers.conv1d(noise3,128,3,2,'same',
                 activation=tf.nn.relu,kernel_initializer=self.initializer)    
         bn_fw4 = tf.layers.batch_normalization(conv4,training=self.training)      
         noise4 = tf.cond(self.training,
                  lambda:tf.add(bn_fw4,tf.random.normal(tf.shape(bn_fw4),0,0.1)),
                  lambda:bn_fw4)
 
-        conv5 = tf.layers.conv1d(noise4,256,3,1,'same',
+        conv5 = tf.layers.conv1d(noise4,128,3,1,'same',
                 activation=tf.nn.relu,kernel_initializer=self.initializer)    
         bn_fw5 = tf.layers.batch_normalization(conv5,training=self.training)      
         noise5 = tf.cond(self.training,
@@ -51,10 +52,10 @@ class deepcrispr(object):
         
         #latent embedding
         self.embed = tf.contrib.layers.flatten(noise5)
-        reshape = tf.reshape(self.embed,(-1,6,1,256))
+        reshape = tf.reshape(self.embed,(-1,6,1,128))
         
         #deconvolution layers
-        deconv1 = tf.layers.conv2d_transpose(reshape,256,(3,1),(1,1),'same',
+        deconv1 = tf.layers.conv2d_transpose(reshape,128,(3,1),(1,1),'same',
                   activation=tf.nn.relu,kernel_initializer=self.initializer) 
         bn_bw1 = tf.layers.batch_normalization(deconv1,training=self.training)
         
@@ -94,29 +95,110 @@ class deepcrispr(object):
                 
         return array
     
-    def train(self,X,batch_size=128,iterations=500000):
+    def train(self,X,batch_size=128,epochs=50,patience=5,X_val=None,savepath=None):
 
         num_samples = len(X)
+        print('training on %i samples' % num_samples)
+        if not isinstance(X_val, type(None)):
+            val_size = len(X_val)
+            print('validating on %i samples' % val_size)
+        shuffled = X.copy()
+        pat_count = 0
+        best_loss = np.inf
     
-        for i in range(iterations):
+        #training epochs
+        for ep in range(epochs):
 
-            #select random sample
-            batch_idx = np.random.randint(0,num_samples,batch_size)
-            batch = [X[idx] for idx in batch_idx]
-            batch = self._str_to_numpy(batch)
+            #shuffle
+            random.shuffle(shuffled)
 
-            feed_dict = {self.inputs:batch,self.training:True}
-            loss,_ = self.sess.run([self.loss,self.optimizer],feed_dict=feed_dict)
+            train_loss = []
+
+            #select batch
+            for start in range(0,len(X),batch_size):
+                
+                if start+batch_size < len(X):
+                    stop = start+batch_size
+                else:
+                    stop = len(X)
+        
+                batch = shuffled[start:stop]
+                batch = self._str_to_numpy(batch)
+
+                feed_dict = {self.inputs:batch,self.training:True}
+                loss,_ = self.sess.run([self.loss,self.optimizer],feed_dict=feed_dict)
+                train_loss.append(loss)
+                
+                sys.stdout.write("epoch %i sample %i loss: %f       \r" % (ep+1,stop,loss))
+                sys.stdout.flush()
+
+            print("epoch %i train loss: %f       \r" % (ep+1,np.mean(train_loss)))
             
-            sys.stdout.write("iteration %i loss: %f       \r" % (i+1,loss))
-            sys.stdout.flush()
+            #check validation loss if available
+            if not isinstance(X_val, type(None)):
+                val_loss = self.score(X_val)
+                print("epoch %i val loss: %f       \r" % (ep+1,val_loss))
+                
+                #save if performance better than previous best
+                if val_loss < best_loss:
+                    best_loss = val_loss
+                    pat_count = 0
+                    if savepath:
+                        self.save(savepath)
+                
+                #check patience
+                else:
+                    pat_count += 1
+                    if pat_count >= patience:
+                        break
 
-    def score(self,X):
-        pass
+    def score(self,X,batch_size=128):
     
-    def get_embeds(self,X):
-        pass
+        total_loss = []
     
+        for start in range(0,len(X),batch_size):
+            
+            if start+batch_size < len(X):
+                stop = start+batch_size
+            else:
+                stop = len(X)
+    
+            batch = X[start:stop]
+            batch = self._str_to_numpy(batch)
+            feed_dict = {self.inputs:batch,self.training:False}
+            loss = self.sess.run(self.loss,feed_dict=feed_dict)
+            total_loss.append(loss)
+            
+            sys.stdout.write("validating sample %i     \r" % stop)
+            sys.stdout.flush()
+            
+        print()
+        return np.mean(total_loss)
+    
+    def get_embeds(self,X,batch_size=128):
+    
+        all_embeds = []
+    
+        for start in range(0,len(X),batch_size):
+            
+            if start+batch_size < len(X):
+                stop = start+batch_size
+            else:
+                stop = len(X)
+    
+            batch = X[start:stop]
+            batch = self._str_to_numpy(batch)
+            feed_dict = {self.inputs:batch,self.training:False}
+            embeds = self.sess.run(self.embed,feed_dict=feed_dict)
+            all_embeds.append(embeds)
+            
+            sys.stdout.write("calculating sample %i     \r" % stop)
+            sys.stdout.flush()
+        
+        print()
+        all_embeds = np.concatenate(all_embeds,0)
+        return all_embeds
+        
     def save(self):
         self.saver.save(self.sess,filename)
     
@@ -130,7 +212,14 @@ if __name__ == "__main__":
     for i in range(1000):
         seq = ''.join([np.random.choice(['A','C','G','T']) for i in range(23)])
         seqs.append(seq)
+        
+    val_seqs = []
+    for i in range(1000):
+        seq = ''.join([np.random.choice(['A','C','G','T']) for i in range(23)])
+        val_seqs.append(seq)
 
     #train model
     model = deepcrispr()
-    model.train(seqs)
+    model.train(seqs,epochs=2,X_val=val_seqs)
+    embeds = model.get_embeds(seqs)
+    print(embeds.shape)
