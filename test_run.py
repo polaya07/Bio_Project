@@ -27,7 +27,7 @@ print('\nsaved %i pam sites' % len(data))
 print('shuffling data into train/val splits')
 num_samples = len(data)
 val_size = int(0.2 * num_samples)
-random.shuffle(data)
+#random.shuffle(data)
 seqs = data[:-val_size]
 val_seqs = data[-val_size:]
 

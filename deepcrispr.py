@@ -106,6 +106,7 @@ class deepcrispr(object):
         for ep in range(epochs):
 
             #shuffle
+            print('shuffling data')
             random.shuffle(shuffled)
 
             train_loss = []
