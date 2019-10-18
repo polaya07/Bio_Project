@@ -1,8 +1,10 @@
 import numpy as np
 import os
 import sys
-import random
+from sklearn.decomposition import PCA
+from sklearn.manifold import TSNE
 from deepcrispr import deepcrispr
+import matplotlib.pyplot as plt
 
 #input args
 filename = '../PAM_Sites/562.1188.PATRIC.gff.guides.txt'
@@ -18,4 +20,16 @@ model = deepcrispr()
 model.load(nn_savefile)
 embeds = model.get_embeds(pamsites)
     
+#dimensionality reduction
+pca = PCA(n_components=2)
+embeds = pca.fit_transform(embeds)
+'''
+tsne = TSNE(n_components=2)
+embeds = tsne.fit_transform(embeds)
+'''
 #plot embeddings
+fig,ax = plt.subplots(figsize=(10,10))
+for i,embed in enumerate(embeds):
+    ax.scatter(embed[0],embed[1],s=3,alpha=0.5,c='b')
+plt.savefig('test.png',bbox_inches='tight',dpi=150)
+plt.close()
