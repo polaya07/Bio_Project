@@ -1,5 +1,5 @@
-#import os
-#os.environ["CUDA_VISIBLE_DEVICES"]="3"
+import os
+os.environ["CUDA_VISIBLE_DEVICES"]="3"
 
 import tensorflow as tf
 import numpy as np
@@ -91,7 +91,7 @@ class deepcrispr(object):
                 
         return array
     
-    def train(self,X,batch_size=128,epochs=50,patience=5,X_val=None,savepath=None):
+    def train(self,X,batch_size=256,epochs=50,patience=5,X_val=None,savepath=None):
 
         num_samples = len(X)
         print('training on %i samples' % num_samples)
@@ -129,12 +129,12 @@ class deepcrispr(object):
                 sys.stdout.write("epoch %i sample %i loss: %f       \r" % (ep+1,stop,loss))
                 sys.stdout.flush()
 
-            print("epoch %i train loss: %f       \r" % (ep+1,np.mean(train_loss)))
+            print("epoch %i train loss: %.16f       \r" % (ep+1,np.mean(train_loss)))
             
             #check validation loss if available
             if not isinstance(X_val, type(None)):
                 val_loss = self.score(X_val)
-                print("epoch %i val loss: %f       \r" % (ep+1,val_loss))
+                print("epoch %i val loss: %.16f       \r" % (ep+1,val_loss))
                 
                 #save if performance better than previous best
                 if val_loss < best_loss:
