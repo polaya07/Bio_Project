@@ -195,10 +195,10 @@ class deepcrispr(object):
         all_embeds = np.concatenate(all_embeds,0)
         return all_embeds
         
-    def save(self):
+    def save(self,filename):
         self.saver.save(self.sess,filename)
     
-    def load(self):
+    def load(self,filename):
         self.saver.restore(self.sess,filename)
     
 if __name__ == "__main__":
