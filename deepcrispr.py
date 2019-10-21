@@ -8,7 +8,7 @@ import random
 
 class deepcrispr(object):
    
-    def __init__(self):
+    def __init__(self,noise_std=0.1):
     
         self.bp2idx = {'A':0,'C':1,'G':2,'T':3}
         self.initializer = tf.contrib.layers.xavier_initializer()
@@ -23,7 +23,7 @@ class deepcrispr(object):
                 activation=tf.nn.relu,kernel_initializer=self.initializer)
         bn_fw1 = tf.layers.batch_normalization(conv1,training=self.training)
         noise1 = tf.cond(self.training,
-                 lambda:tf.add(bn_fw1,tf.random_normal(tf.shape(bn_fw1),0,0.1)),
+                 lambda:tf.add(bn_fw1,tf.random_normal(tf.shape(bn_fw1),0,noise_std)),
                  lambda:bn_fw1)
         drop1 = tf.nn.dropout(noise1,self.dropout)
         
@@ -31,7 +31,7 @@ class deepcrispr(object):
                 activation=tf.nn.relu,kernel_initializer=self.initializer)
         bn_fw2 = tf.layers.batch_normalization(conv2,training=self.training)
         noise2 = tf.cond(self.training,
-                 lambda:tf.add(bn_fw2,tf.random_normal(tf.shape(bn_fw2),0,0.1)),
+                 lambda:tf.add(bn_fw2,tf.random_normal(tf.shape(bn_fw2),0,noise_std)),
                  lambda:bn_fw2)
         drop2 = tf.nn.dropout(noise2,self.dropout)
         
@@ -39,7 +39,7 @@ class deepcrispr(object):
                 activation=tf.nn.relu,kernel_initializer=self.initializer)    
         bn_fw3 = tf.layers.batch_normalization(conv3,training=self.training)
         noise3 = tf.cond(self.training,
-                 lambda:tf.add(bn_fw3,tf.random_normal(tf.shape(bn_fw3),0,0.1)),
+                 lambda:tf.add(bn_fw3,tf.random_normal(tf.shape(bn_fw3),0,noise_std)),
                  lambda:bn_fw3)
         drop3 = tf.nn.dropout(noise3,self.dropout)  
         
@@ -47,7 +47,7 @@ class deepcrispr(object):
                 activation=tf.nn.relu,kernel_initializer=self.initializer)    
         bn_fw4 = tf.layers.batch_normalization(conv4,training=self.training)
         noise4 = tf.cond(self.training,
-                 lambda:tf.add(bn_fw4,tf.random_normal(tf.shape(bn_fw4),0,0.1)),
+                 lambda:tf.add(bn_fw4,tf.random_normal(tf.shape(bn_fw4),0,noise_std)),
                  lambda:bn_fw4)
         drop4 = tf.nn.dropout(noise4,self.dropout)
 
@@ -55,7 +55,7 @@ class deepcrispr(object):
                 activation=tf.nn.relu,kernel_initializer=self.initializer)    
         bn_fw5 = tf.layers.batch_normalization(conv5,training=self.training)
         noise5 = tf.cond(self.training,
-                 lambda:tf.add(bn_fw5,tf.random_normal(tf.shape(bn_fw5),0,0.1)),
+                 lambda:tf.add(bn_fw5,tf.random_normal(tf.shape(bn_fw5),0,noise_std)),
                  lambda:bn_fw5)
         drop5 = tf.nn.dropout(bn_fw5,self.dropout)
         
@@ -135,7 +135,7 @@ class deepcrispr(object):
                 loss,_ = self.sess.run([self.loss,self.optimizer],feed_dict=feed_dict)
                 train_loss.append(loss)
                 
-                sys.stdout.write("iteration %i loss: %f       \r" % (it+1,loss*1000))
+                sys.stdout.write("iteration %i loss: %f       \r" % (it+1,loss))
                 sys.stdout.flush()
 
             print("iteration %i train loss: %f       \r" % (counter*(it+1),np.mean(train_loss)))
