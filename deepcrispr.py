@@ -28,12 +28,12 @@ class deepcrispr(object):
         drop1 = tf.nn.dropout(noise1,self.dropout)
         
         conv2 = tf.layers.conv1d(drop1,64,3,2,'same',
-                activation=tf.nn.relu,kernel_initializer=self.initializer)    
+                activation=tf.nn.relu,kernel_initializer=self.initializer)
         bn_fw2 = tf.layers.batch_normalization(conv2,training=self.training)
         noise2 = tf.cond(self.training,
                  lambda:tf.add(bn_fw2,tf.random_normal(tf.shape(bn_fw2),0,0.1)),
                  lambda:bn_fw2)
-        drop2 = tf.nn.dropout(noise2,self.dropout)    
+        drop2 = tf.nn.dropout(noise2,self.dropout)
         
         conv3 = tf.layers.conv1d(drop2,64,3,1,'same',
                 activation=tf.nn.relu,kernel_initializer=self.initializer)    
@@ -116,11 +116,13 @@ class deepcrispr(object):
 
         pat_count = 0
         best_loss = np.inf
+        counter = 0
     
         #training epochs
         while True:
 
             train_loss = []
+            counter += 1
 
             #select batch
             for it in range(val_every):
@@ -133,14 +135,14 @@ class deepcrispr(object):
                 loss,_ = self.sess.run([self.loss,self.optimizer],feed_dict=feed_dict)
                 train_loss.append(loss)
                 
-                sys.stdout.write("iteration %i sample %i loss: %f       \r" % (it+1,stop,loss*1000))
+                sys.stdout.write("iteration %i loss: %f       \r" % (it+1,loss*1000))
                 sys.stdout.flush()
 
-            print("train loss: %f       \r" % np.mean(train_loss))
+            print("iteration %i train loss: %f       \r" % (counter*(it+1),np.mean(train_loss)))
             
             #check validation loss
             val_loss = self.score(X_val,batch_size)
-            print("val loss: %f       \r" % val_loss)
+            print("iteration %i val loss: %f       \r" % (counter*(it+1),val_loss))
             
             #save if performance better than previous best
             if val_loss < best_loss:
