@@ -8,7 +8,7 @@ import random
 
 class deepcrispr(object):
    
-    def __init__(self,noise_std=0.1):
+    def __init__(self,noise_std=0.2):
     
         self.bp2idx = {'A':0,'C':1,'G':2,'T':3}
         self.initializer = tf.contrib.layers.xavier_initializer()

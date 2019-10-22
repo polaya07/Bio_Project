@@ -2,8 +2,11 @@ import numpy as np
 import os
 import sys
 from sklearn.decomposition import PCA
+from sklearn.decomposition import TruncatedSVD
 from sklearn.manifold import TSNE
 from deepcrispr import deepcrispr
+import matplotlib as mpl
+mpl.use('Agg')
 import matplotlib.pyplot as plt
 
 #input args
@@ -21,7 +24,7 @@ model.load(nn_savefile)
 embeds = model.get_embeds(pamsites)
     
 #dimensionality reduction
-pca = PCA(n_components=2)
+pca = TruncatedSVD(n_components=2)
 embeds = pca.fit_transform(embeds)
 '''
 tsne = TSNE(n_components=2)
