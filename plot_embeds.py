@@ -29,7 +29,8 @@ model.load(nn_savefile)
 embeds = model.get_embeds(pamsites)
     
 #dimensionality reduction
-pca = PCA(n_components=2)
+#pca = PCA(n_components=2)
+pca = TSNE(n_components=2)
 embeds = pca.fit_transform(embeds)
 '''
 tsne = TSNE(n_components=2)
