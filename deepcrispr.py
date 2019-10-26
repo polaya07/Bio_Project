@@ -131,7 +131,7 @@ class deepcrispr(object):
                 batch = [X[idx] for idx in batch_idx]
                 batch = self._str_to_numpy(batch)
 
-                feed_dict = {self.inputs:batch,self.training:True,self.dropout:0.8}
+                feed_dict = {self.inputs:batch,self.training:True,self.dropout:0.6}
                 loss,_ = self.sess.run([self.loss,self.optimizer],feed_dict=feed_dict)
                 train_loss.append(loss)
                 
