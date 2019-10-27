@@ -20,7 +20,7 @@ class deepcrispr(object):
     
         #encoder layers
         conv1 = tf.layers.conv1d(self.inputs,32,3,1,'same',
-                activation=tf.nn.relu,kernel_initializer=self.initializer)
+                activation=tf.nn.elu,kernel_initializer=self.initializer)
         bn_fw1 = tf.layers.batch_normalization(conv1,training=self.training)
         noise1 = tf.cond(self.training,
                  lambda:tf.add(bn_fw1,tf.random_normal(tf.shape(bn_fw1),0,noise_std)),
@@ -28,7 +28,7 @@ class deepcrispr(object):
         drop1 = tf.nn.dropout(noise1,self.dropout)
         
         conv2 = tf.layers.conv1d(drop1,64,3,2,'same',
-                activation=tf.nn.relu,kernel_initializer=self.initializer)
+                activation=tf.nn.elu,kernel_initializer=self.initializer)
         bn_fw2 = tf.layers.batch_normalization(conv2,training=self.training)
         noise2 = tf.cond(self.training,
                  lambda:tf.add(bn_fw2,tf.random_normal(tf.shape(bn_fw2),0,noise_std)),
@@ -36,7 +36,7 @@ class deepcrispr(object):
         drop2 = tf.nn.dropout(noise2,self.dropout)
         
         conv3 = tf.layers.conv1d(drop2,64,3,1,'same',
-                activation=tf.nn.relu,kernel_initializer=self.initializer)    
+                activation=tf.nn.elu,kernel_initializer=self.initializer)    
         bn_fw3 = tf.layers.batch_normalization(conv3,training=self.training)
         noise3 = tf.cond(self.training,
                  lambda:tf.add(bn_fw3,tf.random_normal(tf.shape(bn_fw3),0,noise_std)),
@@ -44,7 +44,7 @@ class deepcrispr(object):
         drop3 = tf.nn.dropout(noise3,self.dropout)  
         
         conv4 = tf.layers.conv1d(drop3,128,3,2,'same',
-                activation=tf.nn.relu,kernel_initializer=self.initializer)    
+                activation=tf.nn.elu,kernel_initializer=self.initializer)    
         bn_fw4 = tf.layers.batch_normalization(conv4,training=self.training)
         noise4 = tf.cond(self.training,
                  lambda:tf.add(bn_fw4,tf.random_normal(tf.shape(bn_fw4),0,noise_std)),
@@ -52,7 +52,7 @@ class deepcrispr(object):
         drop4 = tf.nn.dropout(noise4,self.dropout)
 
         conv5 = tf.layers.conv1d(drop4,128,3,1,'same',
-                activation=tf.nn.relu,kernel_initializer=self.initializer)    
+                activation=tf.nn.elu,kernel_initializer=self.initializer)    
         bn_fw5 = tf.layers.batch_normalization(conv5,training=self.training)
         noise5 = tf.cond(self.training,
                  lambda:tf.add(bn_fw5,tf.random_normal(tf.shape(bn_fw5),0,noise_std)),
@@ -65,19 +65,19 @@ class deepcrispr(object):
         
         #deconvolution layers
         deconv1 = tf.layers.conv2d_transpose(reshape,128,(3,1),(1,1),'same',
-                  activation=tf.nn.relu,kernel_initializer=self.initializer) 
+                  activation=tf.nn.elu,kernel_initializer=self.initializer) 
         bn_bw1 = tf.layers.batch_normalization(deconv1,training=self.training)
         
         deconv2 = tf.layers.conv2d_transpose(bn_bw1,64,(3,1),(2,1),'same',
-                  activation=tf.nn.relu,kernel_initializer=self.initializer) 
+                  activation=tf.nn.elu,kernel_initializer=self.initializer) 
         bn_bw2 = tf.layers.batch_normalization(deconv2,training=self.training)
 
         deconv3 = tf.layers.conv2d_transpose(bn_bw2,64,(3,1),(1,1),'same',
-                  activation=tf.nn.relu,kernel_initializer=self.initializer) 
+                  activation=tf.nn.elu,kernel_initializer=self.initializer) 
         bn_bw3 = tf.layers.batch_normalization(deconv3,training=self.training)
 
         deconv4 = tf.layers.conv2d_transpose(bn_bw3,32,(3,1),(2,1),'same',
-                  activation=tf.nn.relu,kernel_initializer=self.initializer) 
+                  activation=tf.nn.elu,kernel_initializer=self.initializer) 
         bn_bw4 = tf.layers.batch_normalization(deconv4,training=self.training)
 
         self.reconst = tf.layers.conv2d_transpose(bn_bw4,4,(3,1),(1,1),'same',
