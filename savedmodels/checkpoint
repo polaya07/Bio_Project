@@ -1,0 +1,2 @@
+model_checkpoint_path: "deepcrispr.ckpt"
+all_model_checkpoint_paths: "deepcrispr.ckpt"
