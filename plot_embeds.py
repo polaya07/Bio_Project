@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 import os
 import sys
 from sklearn.decomposition import PCA
@@ -8,25 +9,35 @@ from deepcrispr import deepcrispr
 import matplotlib as mpl
 mpl.use('Agg')
 import matplotlib.pyplot as plt
+from mpl_toolkits.axes_grid1 import make_axes_locatable
 import random
+import glob
 
-#input args
-filename = '../PAM_Sites/562.1188.PATRIC.gff.guides.txt'
+#data directory
+data_dir = '../Ecoli_Training_dataset'
 nn_savefile = 'savedmodels/deepcrispr.ckpt'
 
-#load pam sites                                    
-with open(filename) as f:
-    text = f.readlines()
-pamsites = [l[:20]+l[21:24] for l in text[1:]]
+#load pam sites     
+test_data = []
+test_labels = []
+files = list(glob.glob(os.path.join(data_dir,'*')))                               
+for i,genome in enumerate(files[-5:]):                                       
+    data = pd.read_csv(genome)
+    test_data.extend(data['Seq+PAM'])
+    test_labels.extend(data['Prediction'])
+    
+    sys.stdout.write("processing file %i       \r" % (i+1))
+    sys.stdout.flush()
 
 #select subset
-random.shuffle(pamsites)
-pamsites = pamsites[:30000]
+idx = np.random.choice(np.arange(len(test_labels)),10000,replace=False)
+test_data = [test_data[i] for i in idx]
+test_labels = [test_labels[i] for i in idx]
 
 #get embeddings
 model = deepcrispr()
 model.load(nn_savefile)
-embeds = model.get_embeds(pamsites)
+embeds = model.get_embeds(test_data)
     
 #dimensionality reduction
 #pca = PCA(n_components=2)
@@ -38,7 +49,9 @@ embeds = tsne.fit_transform(embeds)
 '''
 #plot embeddings
 fig,ax = plt.subplots(figsize=(10,10))
-for i,embed in enumerate(embeds):
-    ax.scatter(embed[0],embed[1],s=3,alpha=0.5,c='b')
+divider = make_axes_locatable(ax)
+cax = divider.append_axes('right', size='5%', pad=0.05)
+im = ax.scatter(embeds[:,0],embeds[:,1],c=test_labels,s=3,alpha=0.5)
+fig.colorbar(im, cax=cax, orientation='vertical')
 plt.savefig('test.png',bbox_inches='tight',dpi=150)
 plt.close()
