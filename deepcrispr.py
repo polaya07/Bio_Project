@@ -5,6 +5,7 @@ import tensorflow as tf
 import numpy as np
 import sys
 import random
+from sklearn.metrics import f1_score
 
 class deepcrispr(object):
    
@@ -189,6 +190,29 @@ class deepcrispr(object):
             
         print()
         return np.mean(total_loss)
+        
+    def fscore(self,X,y,batch_size=1024):
+    
+        preds = []
+    
+        for start in range(0,len(X),batch_size):
+            
+            if start+batch_size < len(X):
+                stop = start+batch_size
+            else:
+                stop = len(X)
+    
+            X_batch = X[start:stop]
+            X_batch = self._str_to_numpy(X_batch)
+            feed_dict = {self.inputs:X_batch,self.training:False,self.dropout:1.0}
+            pred = self.sess.run(self.on_target,feed_dict=feed_dict)
+            preds.extend(np.squeeze(pred))
+            
+        true = (np.array(y) >= 0.5).astype(np.int32)
+        preds = (np.array(preds) >= 0.5).astype(np.int32)
+        fscore = f1_score(true,preds)
+            
+        return fscore
     
     def pretrain(self,X,X_val,batch_size=1024,val_every=10000,patience=5,savepath=None):
 
@@ -316,5 +340,4 @@ if __name__ == "__main__":
     #model.pretrain(seqs,X_val=val_seqs)
     #embeds = model.get_embeds(seqs)
     #print(embeds.shape)
-    
     model.train(seqs,targets,val_seqs,val_targets)
