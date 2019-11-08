@@ -4,6 +4,7 @@ import numpy as np
 from os import listdir
 from os.path import isfile, join
 import pandas as pd
+import sys
 
 #Read all sequences from files
 def readseqs(path):
@@ -43,12 +44,14 @@ dcmodel = DCModelOntar(sess, on_target_model_dir, is_reg, seq_feature_only)
 
 
 #Read seqs from file
-path = '/home/polaya/Downloads/Bioinformatics_Project/562_PAMsites' 
+#path = '/home/polaya/Downloads/Bioinformatics_Project/562_PAMsites' 
+path = sys.argv[1]
+output_path = sys.argv[2]
 onlyfiles = [f for f in listdir(path) if isfile(join(path, f))]
 print ('Number of files: ', len(onlyfiles))
 folds = 5
 skipped =[]
-for i in range(62, len(onlyfiles)):
+for i in range(0, len(onlyfiles)):
         print ('File', i, ' ', onlyfiles[i])
         seqs, df = readseqs(path)
         print (len(seqs), 'sequences were read from file')
@@ -65,4 +68,5 @@ for i in range(62, len(onlyfiles)):
         #print (predicted_on_target)
         df['Prediction']=predicted_on_target/5
         df['Label']= df['Prediction']>0.5
-        df.to_csv('/home/polaya/Downloads/Bioinformatics_Project/trainingset/'+onlyfiles[i].split('.')[0]+'.'+onlyfiles[i].split('.')[1])
+        #df.to_csv('/home/polaya/Downloads/Bioinformatics_Project/trainingset/'+onlyfiles[i].split('.')[0]+'.'+onlyfiles[i].split('.')[1])
+        df.to_csv(output_path+onlyfiles[i].split('.')[0]+'.'+onlyfiles[i].split('.')[1])
