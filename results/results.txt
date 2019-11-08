@@ -1,0 +1,68 @@
+without pretraining:
+iteration 85000 val loss: 0.008010
+iteration 86000 train loss: 0.008402
+validating sample 3465531   
+iteration 86000 val loss: 0.008012
+iteration 87000 train loss: 0.008385
+validating sample 3465531   
+iteration 87000 val loss: 0.007998
+iteration 88000 train loss: 0.008405
+validating sample 3465531   
+iteration 88000 val loss: 0.007982
+iteration 89000 train loss: 0.008404
+validating sample 3465531   
+iteration 89000 val loss: 0.007990
+iteration 90000 train loss: 0.008405
+validating sample 3465531   
+iteration 90000 val loss: 0.008000
+iteration 91000 train loss: 0.008367
+validating sample 3465531   
+iteration 91000 val loss: 0.007988
+iteration 92000 train loss: 0.008389
+validating sample 3465531   
+iteration 92000 val loss: 0.007986
+iteration 93000 train loss: 0.008406
+validating sample 3465531   
+iteration 93000 val loss: 0.007983
+test set fscore: 0.000000  
+
+----------
+
+unsupervised portion:
+iteration 130000 val loss: 0.000612
+iteration 140000 train loss: 0.006087
+validating sample 49501585  
+iteration 140000 val loss: 0.000855
+iteration 150000 train loss: 0.005297
+validating sample 49501585  
+iteration 150000 val loss: 0.001317
+iteration 160000 train loss: 0.004699
+validating sample 49501585  
+iteration 160000 val loss: 0.001927
+iteration 170000 train loss: 0.004238
+validating sample 49501585  
+iteration 170000 val loss: 0.002628
+
+fine tuning:
+iteration 11000 train loss: 0.010736
+validating sample 3465531   
+iteration 11000 val loss: 0.012836
+iteration 12000 train loss: 0.010259
+validating sample 3465531   
+iteration 12000 val loss: 0.012739
+iteration 13000 train loss: 0.009824
+validating sample 3465531   
+iteration 13000 val loss: 0.013093
+iteration 14000 train loss: 0.009546
+validating sample 3465531   
+iteration 14000 val loss: 0.013578
+iteration 15000 train loss: 0.009321
+validating sample 3465531   
+iteration 15000 val loss: 0.014186
+iteration 16000 train loss: 0.009156
+validating sample 3465531   
+iteration 16000 val loss: 0.015331
+iteration 17000 train loss: 0.009001
+validating sample 3465531   
+iteration 17000 val loss: 0.016065
+test set fscore: 0.107233 

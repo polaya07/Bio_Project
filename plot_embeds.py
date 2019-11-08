@@ -30,7 +30,7 @@ for i,genome in enumerate(files[-5:]):
     sys.stdout.flush()
 
 #select subset
-idx = np.random.choice(np.arange(len(test_labels)),10000,replace=False)
+idx = np.random.choice(np.arange(len(test_labels)),30000,replace=False)
 test_data = [test_data[i] for i in idx]
 test_labels = [test_labels[i] for i in idx]
 

@@ -10,7 +10,6 @@ from deepcrispr import deepcrispr
 pretraining
 '''
 
-'''
 #data directory
 data_dir = '../PAM_Sites'
 
@@ -36,13 +35,13 @@ val_size = int(0.2 * num_samples)
 #random.shuffle(data)
 seqs = data[:-val_size]
 val_seqs = data[-val_size:]
-'''
+
 #train model
 if not os.path.exists('savedmodels'):
     os.makedirs('savedmodels')
 
 model = deepcrispr()
-#model.pretrain(seqs,X_val=val_seqs,savepath='savedmodels/deepcrispr.ckpt')
+model.pretrain(seqs,X_val=val_seqs,savepath='savedmodels/deepcrispr.ckpt')
 
 '''
 training
@@ -89,7 +88,9 @@ train_labels = train_labels[:-val_size]
 val_labels = train_labels[-val_size:]
 
 #train model
-#model.load('savedmodels/deepcrispr.ckpt')
+model.load('savedmodels/deepcrispr.ckpt')
 model.train(train_data,train_labels,val_data,val_labels,savepath='savedmodels/deepcrispr.ckpt')
-fscore = model.fscore(test_data,test_labels)
+fscore,precision,recall = model.fscore(test_data,test_labels)
 print('test set fscore: %.6f' % fscore)
+print('test set precision: %.6f' % precision)
+print('test set recall: %.6f' % recall)

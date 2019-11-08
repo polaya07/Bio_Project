@@ -5,7 +5,7 @@ import tensorflow as tf
 import numpy as np
 import sys
 import random
-from sklearn.metrics import f1_score
+from sklearn.metrics import f1_score,precision_score,recall_score
 
 class deepcrispr(object):
    
@@ -211,8 +211,10 @@ class deepcrispr(object):
         true = (np.array(y) >= 0.5).astype(np.int32)
         preds = (np.array(preds) >= 0.5).astype(np.int32)
         fscore = f1_score(true,preds)
+        precision = precision_score(true,preds)
+        recall = recall_score(true,preds)
             
-        return fscore
+        return fscore,precision,recall
     
     def pretrain(self,X,X_val,batch_size=1024,val_every=10000,patience=5,savepath=None):
 
