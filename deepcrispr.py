@@ -87,13 +87,11 @@ class deepcrispr(object):
         
         #classification layers
         self.target_score = tf.placeholder(tf.float32,shape=[None])
-        dense = tf.layers.dense(self.embed,6*64,tf.nn.elu,kernel_initializer=self.initializer)
-        dense = tf.nn.dropout(dense,self.dropout)
-        self.on_target = tf.layers.dense(dense,1,tf.nn.sigmoid,kernel_initializer=self.initializer)
+        self.on_target = tf.layers.dense(self.embed,1,tf.nn.sigmoid,kernel_initializer=self.initializer)
         
         #loss and optimizer
         self.pretrain_loss = tf.losses.mean_squared_error(self.inputs,self.reconst)
-        self.pretrain_optimizer = tf.train.AdamOptimizer(0.000005,0.9,0.99).minimize(self.pretrain_loss)
+        self.pretrain_optimizer = tf.train.AdamOptimizer(0.00001,0.9,0.99).minimize(self.pretrain_loss)
         self.classification_loss = tf.losses.mean_squared_error(self.on_target,tf.expand_dims(self.target_score,1))
         self.classification_optimizer = tf.train.AdamOptimizer(0.00001,0.9,0.99).minimize(self.classification_loss)
 
